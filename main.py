@@ -30,44 +30,54 @@ def build_coords_map(x_coords, y_coords):
             outlist.append((x, y))
     return outlist
 
-#is_in_square = lambda coords, square: coords[0] >= square[0][0] and coords[0] <= square[1][0] and coords[1] >= square[0][1] and coords[1] <= square[1][1]
-# a collider basically
-def is_in_square(coords, square):
-    """
-    :param coords: Iterable containing two integer values, representing x and y coordinates.
-    :param square: Tuple containing two tuples, each holding an x and y value. The first tuple `square[0]` contains the low bounding corner and the second tuple `square[1]` contains the high bounding corner.
-    :return boolean: `True` if `coords` are within the bounds of `square`, `False` otherwise.
-    """
-    x, y = coords[0], coords[1]
-    low_x = square[0][0]
-    high_x = square[1][0]
-    low_y = square[0][1]
-    high_y = square[1][1]
-    return x >= low_x and x <= high_x and y >= low_y and y <= high_y
+is_in_square = lambda coords, square: coords[0] >= square[0][0] and coords[0] <= square[1][0] and coords[1] >= square[0][1] and coords[1] <= square[1][1]
 
-
-def remove_coords_within_zone(coords, zone):
-    outlist = coords.copy()
-    for coord in coords:
+def remove_coords_within_zone(coords_taken, coords_map, zone):
+    outlist = coords_map.copy()
+    if len(coords_taken) == 0:
+        return outlist # exit case
+    for coord in coords_taken:
         if is_in_square(coord, zone):
-            print("is in square")
-            outlist.remove(coord)
+            # remove all coordinates in that square from the outlist
+            for c in outlist:
+                if is_in_square(c, zone):
+                    outlist.remove(c)
     return outlist
+
+def display_grid(num_coords): # full disclaimer, i didnt write this. i made the ai make debugging tools for me
+    """
+    Displays a 2D grid (1-9) with the coordinates from num_coords marked,
+    formatted with bounding boxes like a Sudoku board.
+    :param num_coords: List of tuples containing x and y coordinates.
+    """
+    grid = [["." for _ in range(9)] for _ in range(9)]  # Create a 9x9 grid filled with dots
+    for x, y in num_coords:
+        grid[y - 1][x - 1] = "X"  # Mark the coordinate with 'X'
+
+    print("   1 2 3   4 5 6   7 8 9")  # Print column headers with spacing for boxes
+    print("  +-------+-------+-------+")  # Top border
+    for i, row in enumerate(grid):
+        row_str = f"{i + 1} | "  # Add row number and left border
+        for j, cell in enumerate(row):
+            row_str += cell + " "
+            if (j + 1) % 3 == 0:  # Add vertical box borders
+                row_str += "| "
+        print(row_str)
+        if (i + 1) % 3 == 0:  # Add horizontal box borders
+            print("  +-------+-------+-------+")
+
 number, num_coords = random.choice(list(numbers.items()))
-#num_coords.append((1, 2)) # test line
 while len(num_coords) < 9:
-    print("starting loop")
-    print(f"current num coords: {num_coords}")
     possible_coords = get_possible_coords(num_coords)
-    print(f"possible coords: {possible_coords}")
     coords_map = build_coords_map(*possible_coords)
-    print(f"coords map: {coords_map}")
-    final_coords_map = remove_coords_within_zone(coords_map, ALL_SQUARES[0])
-    print(f"final coords map: {final_coords_map}")
+    for square in ALL_SQUARES:
+        final_coords_map = remove_coords_within_zone(num_coords, coords_map, square)
+    print(final_coords_map)
     choice = random.choice(final_coords_map)
-    print(f"picked coordinate: {choice}")
     num_coords.append(choice)
-print(f"{number}: {num_coords}")
-# remove coords from coords_map that are in squares with the same number
+
+
+# Example usage
+display_grid(num_coords)
 
 
