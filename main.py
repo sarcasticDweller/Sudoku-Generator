@@ -68,10 +68,8 @@ def display_grid(num_coords): # full disclaimer, i didnt write this. i made the 
 
 number, num_coords = random.choice(list(numbers.items()))
 while len(num_coords) < 9:
-    possible_coords = get_possible_coords(num_coords)
-    coords_map = build_coords_map(*possible_coords)
-    for square in ALL_SQUARES:
-        final_coords_map = remove_coords_within_zone(num_coords, coords_map, square)
+    coords_map = build_coords_map(*get_possible_coords(num_coords))
+    final_coords_map = remove_coords_within_zone(num_coords, coords_map, ALL_SQUARES[0])
     print(final_coords_map)
     choice = random.choice(final_coords_map)
     num_coords.append(choice)
