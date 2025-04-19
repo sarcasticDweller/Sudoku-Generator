@@ -1,4 +1,4 @@
-def display_grid(numbers):
+def display_grid(numbers): # Full disclaimer, Copilot wrote this whole thing. I am *not* keeping it.
     """
     Displays a 2D grid (1-9) with the numbers from numbers placed at their respective coordinates,
     formatted with bounding boxes like a Sudoku board.

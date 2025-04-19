@@ -70,7 +70,7 @@ def generate_board():
         tried_coords = set()
 
         while len(coords) < 9:
-            if cycles > 200:
+            if cycles == 200:
                 return None, cycles # Give up
 
             cycles += 1
@@ -115,4 +115,3 @@ while True:
     if numbers != None:
         debug.display_grid(numbers)
         print(f"Board made in {cycles} cycles and {attempts} attempts")
-        break
