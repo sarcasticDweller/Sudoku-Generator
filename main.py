@@ -37,18 +37,18 @@ def build_coords_map(x_coords, y_coords):
 
 is_in_square = lambda coords, square: coords[0] >= square[0][0] and coords[0] <= square[1][0] and coords[1] >= square[0][1] and coords[1] <= square[1][1]
 
-def remove_coords_within_square(coords_taken, coords_map, squares):
+def remove_coords_within_square(taken_coords, coords_map, squares):
     """
-    :param coords_taken: Iterable of tuples containing xy values.
+    :param taken_coords: Iterable of tuples containing xy values.
     :param coords_map: Iterable of tuples containing xy values.
     :param squares: Iterable containing two tuples containing xy values that serve as bounding boxes of a square.
-    :return outlist: List of tuples containing xy values that do not share squares with `coords_taken`
+    :return outlist: List of tuples containing xy values that do not share squares with `taken_coords`
     """
     outlist = coords_map.copy() 
-    if len(coords_taken) == 0: 
+    if len(taken_coords) == 0: 
         return outlist
     for square in squares:
-        for coord in coords_taken:
+        for coord in taken_coords:
             if is_in_square(coord, square):
                 outlist = [c for c in outlist if not is_in_square(c, square)]
     return outlist
@@ -63,10 +63,16 @@ while len(number_coords) < 9:
 debug.display_grid(number_coords)
 """
 
+get_all_placed_numbers = lambda numbers: [coord for number in sorted(numbers) for coord in numbers[number]]
+remove_taken_coords_from_map = lambda taken_coords, map: [coord for coord in map if coord  not in taken_coords]
+
+
 for number in sorted(numbers):
     number_coords = numbers[number]
-    coords_map = build_coords_map(*get_possible_coords(number_coords))
     while len(number_coords) < 9:
+        all_placed_numbers = get_all_placed_numbers(numbers)
+        coords_map = build_coords_map(*get_possible_coords(number_coords))
+        coords_map = remove_taken_coords_from_map(all_placed_numbers, coords_map)
         square_aware_coords_map = remove_coords_within_square(number_coords, coords_map, ALL_SQUARES)
         number_coords.append(random.choice(square_aware_coords_map))
     debug.display_grid(number_coords)
