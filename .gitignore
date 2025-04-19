@@ -1,5 +1,5 @@
 /__pycache__
-/ignore
-/._*
+ignore/
+._*
 runme.sh
 debug.py
