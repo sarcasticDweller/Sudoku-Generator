@@ -115,3 +115,4 @@ while True:
     if numbers != None:
         debug.display_grid(numbers)
         print(f"Board made in {cycles} cycles and {attempts} attempts")
+        break
