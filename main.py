@@ -109,7 +109,8 @@ def hide_numbers_on_board(board, amount):
     trimmed_board = board.copy()
     counter = amount
     while counter != 0:
-        trimmed_board.remove(random.choice(trimmed_board))
+        number_to_remove = random.choice(list(trimmed_board.items()))
+        trimmed_board[number_to_remove[0]].remove(random.choice(number_to_remove[1]))
         counter -= 1
     return trimmed_board
 
@@ -121,7 +122,7 @@ while True:
     if numbers != None:
         break
 
-cells_to_hide = 13
+cells_to_hide = 40
 print("Full Board")
 print("===========")
 debug.display_grid(numbers)
