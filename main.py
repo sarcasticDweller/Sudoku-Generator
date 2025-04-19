@@ -65,6 +65,7 @@ debug.display_grid(number_coords)
 
 for number in sorted(numbers):
     print(number)
+    #
 
 
 
