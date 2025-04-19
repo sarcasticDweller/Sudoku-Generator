@@ -1,4 +1,4 @@
-import random, debug
+import random, debug 
 numbers = {"1": [], "2": [], "3": [], "4": [], "5": [], "6": [], "7": [], "8": [], "9": []}
 ALL_X_COORDS = (1, 2, 3, 4, 5, 6, 7, 8, 9)
 ALL_Y_COORDS = (1, 2, 3, 4, 5, 6, 7, 8, 9)
@@ -9,18 +9,21 @@ ALL_SQUARES = ( # tuples containing two coordinate pairs
 )
 
 # logic
-def get_possible_coords(taken_coords, possible_x_coords = list(ALL_X_COORDS), possible_y_coords = list(ALL_Y_COORDS)):
+def get_possible_coords(taken_coords, x_coords = ALL_X_COORDS, y_coords = ALL_Y_COORDS):
     """
     :param taken_coords: list of tuples containing x and y coordinate values
-    :param possible_x_coords: Optional list of all coordinates available
-    :param possible_y_coords: Optional list of all coordinates available
+    :param x_coords: Optional list of all coordinates available
+    :param y_coords: Optional list of all coordinates available
     :return tuple: Tuple containing possible x and y coordinates
     """
-    for coords in taken_coords:
-        if coords[0] in possible_x_coords:
-            possible_x_coords.remove(coords[0])
-        if coords[1] in possible_y_coords:
-            possible_y_coords.remove(coords[1])
+    possible_x_coords = list(x_coords).copy()
+    possible_y_coords = list(y_coords).copy()
+    if len(taken_coords) != 0:
+        for coords in taken_coords:
+            if coords[0] in possible_x_coords:
+                possible_x_coords.remove(coords[0])
+            if coords[1] in possible_y_coords:
+                possible_y_coords.remove(coords[1])
     return possible_x_coords, possible_y_coords
 
 def build_coords_map(x_coords, y_coords):
@@ -53,26 +56,47 @@ def remove_coords_within_square(taken_coords, coords_map, squares):
                 outlist = [c for c in outlist if not is_in_square(c, square)]
     return outlist
 
-""" Place one number
-number, number_coords = random.choice(list(numbers.items()))
-while len(number_coords) < 9:
-    coords_map = build_coords_map(*get_possible_coords(number_coords))
-    final_coords_map = remove_coords_within_square(number_coords, coords_map, ALL_SQUARES)
-    choice = random.choice(final_coords_map)
-    number_coords.append(choice)
-debug.display_grid(number_coords)
-"""
+get_all_numbers = lambda numbers: [coord for number in sorted(numbers) for coord in numbers[number]]
 
-get_all_placed_numbers = lambda numbers: [coord for number in sorted(numbers) for coord in numbers[number]]
-remove_taken_coords_from_map = lambda taken_coords, map: [coord for coord in map if coord  not in taken_coords]
+remove_coords_from_map = lambda coords, map: [c for c in map if c not in coords]
 
 
 for number in sorted(numbers):
-    number_coords = numbers[number]
-    while len(number_coords) < 9:
-        all_placed_numbers = get_all_placed_numbers(numbers)
-        coords_map = build_coords_map(*get_possible_coords(number_coords))
-        coords_map = remove_taken_coords_from_map(all_placed_numbers, coords_map)
-        square_aware_coords_map = remove_coords_within_square(number_coords, coords_map, ALL_SQUARES)
-        number_coords.append(random.choice(square_aware_coords_map))
-    debug.display_grid(number_coords)
+    print(f"////////////\nWorking number is {number}")
+    coords = numbers[number]
+    print(f"Initializing with coords: {coords}")
+    tried_coords = set()
+
+    while len(coords) < 9:
+        coords_map = build_coords_map(*get_possible_coords(coords))
+        all_placed_numbers = get_all_numbers(numbers)
+        #print(f"Placed numbers: {all_placed_numbers}")
+        print(f"Coords map: {coords_map}")
+        cleaned_coords_map = remove_coords_from_map(all_placed_numbers, coords_map)
+        print(f"Cleaned coords map: {cleaned_coords_map}")
+        square_aware_coords_map = remove_coords_within_square(coords, cleaned_coords_map, ALL_SQUARES)
+
+        tried_coords_aware_coords_map = remove_coords_from_map(tried_coords, square_aware_coords_map)
+        print(f"Tried coords aware map: {tried_coords_aware_coords_map}")
+
+        if len(tried_coords_aware_coords_map) == 0:
+            if len(coords) == 0:
+                print("fuck!")
+                break
+            # find the coord thats conflicting and remove it
+            number_want_to_place = cleaned_coords_map[0] if len(cleaned_coords_map) == 1 else coords_map[0] # must only have one item left
+            conflicting_coord = None
+            for c in coords:
+                if c[0] == number_want_to_place[0] or c[1] == number_want_to_place[1]:
+                    conflicting_coord = c
+                    break # we found it boys
+            if conflicting_coord == None:
+                conflicting_coord = coords[0] # a hail mary
+            last_coord = coords.remove(conflicting_coord)
+            tried_coords.add(last_coord)
+            print(f"Backtracking from {last_coord}")
+            continue
+        choice = random.choice(tried_coords_aware_coords_map)
+        coords.append(choice)
+        tried_coords.clear()
+        debug.display_grid(numbers)

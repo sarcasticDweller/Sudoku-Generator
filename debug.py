@@ -1,14 +1,18 @@
-
-def display_grid(num_coords): # full disclaimer, i didnt write this. i made the ai make debugging tools for me
+def display_grid(numbers):
     """
-    Displays a 2D grid (1-9) with the coordinates from num_coords marked,
+    Displays a 2D grid (1-9) with the numbers from numbers placed at their respective coordinates,
     formatted with bounding boxes like a Sudoku board.
-    :param num_coords: List of tuples containing x and y coordinates.
+
+    :param numbers: Dictionary where keys are numbers (as strings) and values are lists of (x, y) tuples.
     """
     grid = [["." for _ in range(9)] for _ in range(9)]  # Create a 9x9 grid filled with dots
-    for x, y in num_coords:
-        grid[y - 1][x - 1] = "X"  # Mark the coordinate with 'X'
 
+    # Place numbers on the grid
+    for number, coords in numbers.items():
+        for x, y in coords:
+            grid[y - 1][x - 1] = number  # Place the number at the correct position
+
+    # Print the grid with Sudoku formatting
     print("   1 2 3   4 5 6   7 8 9")  # Print column headers with spacing for boxes
     print("  +-------+-------+-------+")  # Top border
     for i, row in enumerate(grid):
