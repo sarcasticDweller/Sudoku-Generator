@@ -64,8 +64,9 @@ debug.display_grid(number_coords)
 """
 
 for number in sorted(numbers):
-    print(number)
-    #
-
-
-
+    number_coords = numbers[number]
+    coords_map = build_coords_map(*get_possible_coords(number_coords))
+    while len(number_coords) < 9:
+        square_aware_coords_map = remove_coords_within_square(number_coords, coords_map, ALL_SQUARES)
+        number_coords.append(random.choice(square_aware_coords_map))
+    debug.display_grid(number_coords)
