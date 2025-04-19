@@ -1,6 +1,5 @@
 /__pycache__
 ignore/
 ._*
-purge_output.sh
-save_output.sh
 game.txt
+.DS_Store
