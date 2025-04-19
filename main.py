@@ -64,9 +64,7 @@ def generate_board():
     numbers = {"1": [], "2": [], "3": [], "4": [], "5": [], "6": [], "7": [], "8": [], "9": []}
     cycles = 0
     for number in sorted(numbers):
-        #print(f"////////////\nWorking number is {number}")
         coords = numbers[number]
-        #print(f"Initializing with coords: {coords}")
         tried_coords = set()
 
         while len(coords) < 9:
@@ -76,19 +74,14 @@ def generate_board():
             cycles += 1
             coords_map = build_coords_map(*get_possible_coords(coords))
             all_placed_numbers = get_all_numbers(numbers)
-            #print(f"Placed numbers: {all_placed_numbers}")
             cleaned_coords_map = remove_coords_from_map(all_placed_numbers, coords_map)
             square_aware_coords_map = remove_coords_within_square(coords, cleaned_coords_map, ALL_SQUARES)
 
             tried_coords_aware_coords_map = remove_coords_from_map(tried_coords, square_aware_coords_map)
 
             if len(tried_coords_aware_coords_map) == 0:
-                #print(f"Coords map: {coords_map}")
-                #print(f"Cleaned coords map: {cleaned_coords_map}")
-                #print(f"Tried coords aware map: {tried_coords_aware_coords_map}")
-                if len(coords) == 0:
-                #    print("fuck!")
-                    break
+                if not coords: # equal to `if len(coords) == 0`. thank you @Snorlax666 on discord
+                    break # honesty i dont actually remember what this does
                 # find the coord thats conflicting and remove it
                 number_want_to_place = cleaned_coords_map[0] if len(cleaned_coords_map) == 1 else coords_map[0] # must only have one item left
                 conflicting_coord = None
@@ -100,7 +93,6 @@ def generate_board():
                     conflicting_coord = coords[0] # a hail mary
                 coords.remove(conflicting_coord)
                 tried_coords.add(conflicting_coord)
-                #print(f"Backtracking from {conflicting_coord}")
                 continue
 
             choice = random.choice(tried_coords_aware_coords_map)
@@ -108,11 +100,32 @@ def generate_board():
             tried_coords.clear()
     return numbers, cycles
 
+def hide_numbers_on_board(board, amount):
+    """
+    :param board: Iterable of tuples containing xy values
+    :param amount: Integer representing amount of numbers to be hidden
+    :return: Iterable of tuples containing xy values that is `amount` tuples shorter than `board`.
+    """
+    trimmed_board = board.copy()
+    counter = amount
+    while counter != 0:
+        trimmed_board.remove(random.choice(trimmed_board))
+        counter -= 1
+    return trimmed_board
+
+
 attempts = 0
 while True:
     attempts += 1
     numbers, cycles = generate_board()
     if numbers != None:
-        debug.display_grid(numbers)
-        print(f"Board made in {cycles} cycles and {attempts} attempts")
         break
+
+cells_to_hide = 13
+print("Full Board")
+print("===========")
+debug.display_grid(numbers)
+print(f"Board made in {cycles} cycles and {attempts} attempts")
+print(f"\nBoard with {cells_to_hide} cells hidden")
+print("===========================================")
+debug.display_grid(hide_numbers_on_board(numbers, cells_to_hide))
