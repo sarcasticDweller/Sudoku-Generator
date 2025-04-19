@@ -61,6 +61,7 @@ get_all_numbers = lambda numbers: [coord for number in sorted(numbers) for coord
 remove_coords_from_map = lambda coords, map: [c for c in map if c not in coords]
 
 
+cycles = 0
 for number in sorted(numbers):
     print(f"////////////\nWorking number is {number}")
     coords = numbers[number]
@@ -68,18 +69,19 @@ for number in sorted(numbers):
     tried_coords = set()
 
     while len(coords) < 9:
+        cycles += 1
         coords_map = build_coords_map(*get_possible_coords(coords))
         all_placed_numbers = get_all_numbers(numbers)
         #print(f"Placed numbers: {all_placed_numbers}")
-        print(f"Coords map: {coords_map}")
         cleaned_coords_map = remove_coords_from_map(all_placed_numbers, coords_map)
-        print(f"Cleaned coords map: {cleaned_coords_map}")
         square_aware_coords_map = remove_coords_within_square(coords, cleaned_coords_map, ALL_SQUARES)
 
         tried_coords_aware_coords_map = remove_coords_from_map(tried_coords, square_aware_coords_map)
-        print(f"Tried coords aware map: {tried_coords_aware_coords_map}")
 
         if len(tried_coords_aware_coords_map) == 0:
+            print(f"Coords map: {coords_map}")
+            print(f"Cleaned coords map: {cleaned_coords_map}")
+            print(f"Tried coords aware map: {tried_coords_aware_coords_map}")
             if len(coords) == 0:
                 print("fuck!")
                 break
@@ -92,11 +94,14 @@ for number in sorted(numbers):
                     break # we found it boys
             if conflicting_coord == None:
                 conflicting_coord = coords[0] # a hail mary
-            last_coord = coords.remove(conflicting_coord)
-            tried_coords.add(last_coord)
-            print(f"Backtracking from {last_coord}")
+            coords.remove(conflicting_coord)
+            tried_coords.add(conflicting_coord)
+            print(f"Backtracking from {conflicting_coord}")
             continue
+
         choice = random.choice(tried_coords_aware_coords_map)
         coords.append(choice)
         tried_coords.clear()
+        print("\n=========================\n")
         debug.display_grid(numbers)
+print(f"Completed in {cycles} cycles")

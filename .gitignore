@@ -1,4 +1,5 @@
 /__pycache__
 ignore/
 ._*
-runme.sh
+purge_output.sh
+save_output.sh

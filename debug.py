@@ -13,7 +13,7 @@ def display_grid(numbers):
             grid[y - 1][x - 1] = number  # Place the number at the correct position
 
     # Print the grid with Sudoku formatting
-    print("   1 2 3   4 5 6   7 8 9")  # Print column headers with spacing for boxes
+    print("    1 2 3   4 5 6   7 8 9")  # Print column headers with spacing for boxes
     print("  +-------+-------+-------+")  # Top border
     for i, row in enumerate(grid):
         row_str = f"{i + 1} | "  # Add row number and left border
