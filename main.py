@@ -121,3 +121,11 @@ while True:
     if numbers != None:
         break
 
+cells_to_hide = 13
+print("Full Board")
+print("===========")
+debug.display_grid(numbers)
+print(f"Board made in {cycles} cycles and {attempts} attempts")
+print(f"\nBoard with {cells_to_hide} cells hidden")
+print("===========================================")
+debug.display_grid(hide_numbers_on_board(numbers, cells_to_hide))
