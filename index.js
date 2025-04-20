@@ -6,9 +6,6 @@ const SQUARES = [
 
 ];
 
-document.getElementById("1:1").innerHTML = "Hello World";
-document.getElementById("title").innerHTML = "Hello World";
-
 function getPossibleCoords(takenCoords, xCoords = ALL_X_COORDS, yCoords = ALL_Y_COORDS) {
     var possibleXCoords = [...xCoords]; // and i already am realizing i dont know the first thing about javascript
     var possibleYCoords = [...yCoords];
@@ -43,19 +40,36 @@ function isInSquare(coords, square) { // simple collider logic
         && coords[1] <= square[1][1];
 }
 
-function removeCoordsWithinSquare(takenCoords, map, squares) {
-    newMap = [...map];
+function removeCoordsFromSquare(takenCoords, map, squares) {
+    var newMap = [...map];
     if (takenCoords.length == 0) {
         return newMap; // no squares eliminated yet
     }
     for (const square in squares) {
         for (const coord in takenCoords) {
-            if (takenCoords.includes(coord)) {
+            if (isInSquare(coord, square)) {
                 // how do you do list comprehension in javascript anyway
+                newMap = newMap.filter(c => !isInSquare(c, square)); // i *think* this does it, but im learning js as i go
             }
         }
     }
     return newMap;
 }
+
+function getCoordsOfAllNumbers(numbers) {
+    var allNums = [];
+    for (const number of numbers) {
+        for (const coord of numbers[number]) {
+            allNums.push(coord);
+        }
+    }
+    return allNums;
+}
+
+function removeCoordsFromMap(coords, map) {
+    var newMap
+}
+
+console.log("hello world");
 
 document.getElementById("debug_readout").innerHTML = buildCoordsMap(ALL_X_COORDS, ALL_Y_COORDS)[1];

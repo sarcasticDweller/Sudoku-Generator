@@ -1,3 +1,6 @@
+# Out of date!
+This is not for the javascript version. 
+
 # About
 Generates a Sudoku board filled in, and one with 40 cells hidden randomly.
 
