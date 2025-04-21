@@ -67,9 +67,38 @@ function getCoordsOfAllNumbers(numbers) {
 }
 
 function removeCoordsFromMap(coords, map) {
-    var newMap
+    return map.filter(coord => !coords.some(c => c[0] === coord[0] && c[1] === coord[1]));
+}
+
+function generateBoard() {
+    /**
+     * :return map: dictionary of numbers and their coordinates
+     * :return cycles: number of cycles it took to generate the board
+     * Todo: update how this docstring is formatted so that it works with vsc
+     */
+
+    var numbers = {one:[], two:[], three: [], four: [], five: [], six: [], seven: [], eight: [], nine: []};
+    var cycles = 0;
+    for (const number in numbers) {
+        var coords = Object.values(numbers[number]);
+        var tried_coords = [];
+        console.log(coords);
+        while (coords.length < 9) {
+            if (cycles > 200) {
+                return false; 0; // reset if it takes too long
+            }
+            cycles += 1;
+            const POSSIBLE_COORDS = getPossibleCoords(coords); // array value, [0] = x, [1] = y
+            const MAP = buildCoordsMap(POSSIBLE_COORDS[0], POSSIBLE_COORDS[1]); // in python, this was buildCoordsMap(*getPossibleCoords(coords));
+            const COORDS_TO_CLEAN = getCoordsOfAllNumbers(numbers)
+            const CLEANED_MAP = removeCoordsFromMap(COORDS_TO_CLEAN, MAP);
+            const SQUARE_AWARE_CLEAN_MAP = removeCoordsFromSquare(CLEANED_MAP, SQUARES);
+
+            // now do TRIED_COORDS_AWARE_MAP
+
+        }
+    }
 }
 
 console.log("hello world");
-
-document.getElementById("debug_readout").innerHTML = buildCoordsMap(ALL_X_COORDS, ALL_Y_COORDS)[1];
+generateBoard();

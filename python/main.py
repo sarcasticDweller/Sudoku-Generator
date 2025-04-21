@@ -55,9 +55,10 @@ def remove_coords_within_square(taken_coords, coords_map, squares):
                 outlist = [c for c in outlist if not is_in_square(c, square)]
     return outlist
 
+remove_coords_from_map = lambda coords, map: [c for c in map if c not in coords]
+
 get_all_numbers = lambda numbers: [coord for number in sorted(numbers) for coord in numbers[number]]
 
-remove_coords_from_map = lambda coords, map: [c for c in map if c not in coords]
 
 
 def generate_board():
