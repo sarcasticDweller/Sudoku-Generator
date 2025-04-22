@@ -93,9 +93,9 @@ function generateBoard() {
 
     for (const number in numbers) {
         console.log("Trying: " + number);
-        var coords = Object.values(numbers[number]);
-        //console.log("Coords: ");
-        //for(c of coords){console.log(c);}
+        var coords = numbers[number];
+        console.log("Coords: ");
+        for(c of coords){console.log(c);}
         var triedCoords = [];
         while (coords.length < 9) {
             if (cycles > 200) { // reset to 200
@@ -151,7 +151,7 @@ function generateBoard() {
                 var spot; // we're trying to place a number here. now figure out where this spot actually is
                 var conflictingCoord; // the number conflicting with spot
                 if (SQUARE_AWARE_MAP.length == 1) { spot = SQUARE_AWARE_MAP[0]; console.log("Spot is square"); }
-                else if (NUM_AWARE_MAP.length == 1) { spot = NUM_AWARE_MAP[0]; console.log("Spot is num"); }
+                else { spot = NUM_AWARE_MAP[0]; console.log("Spot is num"); }
 
                 for (c of coords) {
                     if (c[0] == spot[0] || c[1] == spot[1]) {
@@ -189,7 +189,10 @@ function generateBoard() {
 
         }
     }
-    console.log("Board generated");
+
+    // finally, output the damn information
+    //console.log("Board generated");
+    //console.log("Numbers: " + Object.values(numbers));
     return [numbers, cycles]; // returns the unmodified array! blargisborg!
 }
 
@@ -202,20 +205,26 @@ function pushNumberToCell(number, cellId) { // we love a simple helper function
 }
 
 function convertCoordToIdFormat(coord) {
-    console.log(coord[0])
+    return coord[0] + ":" + coord[1];
 }
 
 function populateBoardHTML(board) {
     console.log("Populating HTML board");
     for (const number in board) {
-        var coords = Object.values(board[number]);
-        console.log("Number: " + number);
-        console.log("Coords: " + coords);
-        for(c of coords){console.log(c);}
+        var coords = board[number];
+        for(c of coords){
+            pushNumberToCell(number, convertCoordToIdFormat(c));
+        }
     }
 }
-
-var board = generateBoard();
-console.log("Generated in " + board[1] + " cycles");
-console.log(board);
-populateBoardHTML(board[0]);
+function getNewGame() {
+    var attempts = 0;
+    while (true) {
+        attempts++;
+        var board = generateBoard();
+        if (board[0]) { break; }
+    }
+    console.log("Generated in " + board[1] + " cycles and " + attempts + " attempts.");
+    //console.log(board);
+    populateBoardHTML(board[0]);
+}
