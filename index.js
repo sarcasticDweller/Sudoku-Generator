@@ -1,3 +1,5 @@
+// i allegedly haave two errors. i dont know whats wrong though, just that theres errors. thanks, vim!
+
 const ALL_X_COORDS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const ALL_Y_COORDS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const SQUARES = [
@@ -19,7 +21,7 @@ function getPossibleCoords(takenCoords, xCoords = ALL_X_COORDS, yCoords = ALL_Y_
             }
         }
     }
-    return [[possibleXCoords], [possibleYCoords]];
+    return [possibleXCoords, possibleYCoords];
 }
 
 function buildCoordsMap(xCoords, yCoords){
@@ -45,10 +47,9 @@ function removeCoordsFromSquare(takenCoords, map, squares) {
     if (takenCoords.length == 0) {
         return newMap; // no squares eliminated yet
     }
-    for (const square in squares) {
-        for (const coord in takenCoords) {
+    for (const square of squares) {
+        for (const coord of takenCoords) {
             if (isInSquare(coord, square)) {
-                // how do you do list comprehension in javascript anyway
                 newMap = newMap.filter(c => !isInSquare(c, square)); // i *think* this does it, but im learning js as i go
             }
         }
@@ -56,9 +57,9 @@ function removeCoordsFromSquare(takenCoords, map, squares) {
     return newMap;
 }
 
-function getCoordsOfAllNumbers(numbers) {
+function getCoordsOfAllNumbers(numbers) { // numbers is not iterable
     var allNums = [];
-    for (const number of numbers) {
+    for (const number in numbers) {
         for (const coord of numbers[number]) {
             allNums.push(coord);
         }
@@ -70,6 +71,15 @@ function removeCoordsFromMap(coords, map) {
     return map.filter(coord => !coords.some(c => c[0] === coord[0] && c[1] === coord[1]));
 }
 
+function findCoordWithSharedAxis(point, coords) {
+    for (const c in coords) {
+        if (c[0] == point[0] || c[1] == point[1]) {
+            return c;
+        }
+    }
+    return null;
+}
+
 function generateBoard() {
     /**
      * :return map: dictionary of numbers and their coordinates
@@ -77,28 +87,135 @@ function generateBoard() {
      * Todo: update how this docstring is formatted so that it works with vsc
      */
 
-    var numbers = {one:[], two:[], three: [], four: [], five: [], six: [], seven: [], eight: [], nine: []};
+    console.log("Begin generating board");
+    var numbers = {"1":[[1,1]], "2":[], "3": [], "4": [], "5": [], "6": [], "7": [], "8": [], "9": []}; // should be blank
     var cycles = 0;
+
     for (const number in numbers) {
+        console.log("Trying: " + number);
         var coords = Object.values(numbers[number]);
-        var tried_coords = [];
-        console.log(coords);
+        //console.log("Coords: ");
+        //for(c of coords){console.log(c);}
+        var triedCoords = [];
         while (coords.length < 9) {
-            if (cycles > 200) {
-                return false; 0; // reset if it takes too long
+            if (cycles > 200) { // reset to 200
+                return [false, 0]; // reset if it takes too long
             }
             cycles += 1;
-            const POSSIBLE_COORDS = getPossibleCoords(coords); // array value, [0] = x, [1] = y
-            const MAP = buildCoordsMap(POSSIBLE_COORDS[0], POSSIBLE_COORDS[1]); // in python, this was buildCoordsMap(*getPossibleCoords(coords));
-            const COORDS_TO_CLEAN = getCoordsOfAllNumbers(numbers)
-            const CLEANED_MAP = removeCoordsFromMap(COORDS_TO_CLEAN, MAP);
-            const SQUARE_AWARE_CLEAN_MAP = removeCoordsFromSquare(CLEANED_MAP, SQUARES);
+            // loop logic
 
-            // now do TRIED_COORDS_AWARE_MAP
+
+            // eliminate x/y values if they overlap with a coord
+            const POSSIBLE_COORDS = getPossibleCoords(coords); 
+            //console.log("Possible coords: ");
+            //for (c of POSSIBLE_COORDS){console.log(c)};
+
+
+            // build a coordinate map
+            const MAP = buildCoordsMap(POSSIBLE_COORDS[0], POSSIBLE_COORDS[1]);
+            //console.log("Map: ");
+            //for (m of MAP){console.log(m);}
+
+            // remove all taken coords from the map
+            const NUM_AWARE_MAP = removeCoordsFromMap(coords, MAP);
+            //console.log("Num aware map: ");
+            //for(m of NUM_AWARE_MAP){console.log(m);}
+
+            // remove all coords in squares that already have the same number
+            const SQUARE_AWARE_MAP = removeCoordsFromSquare(coords, NUM_AWARE_MAP, SQUARES);
+            //console.log("Square aware coords map: ");
+            //for (m of SQUARE_AWARE_COORDS_MAP){console.log(m);}
+
+
+
+
+            // error checking
+            
+
+            /*
+             * This will work better when I know all the possible cases where an issue occurs, and then work on those.
+             */
+
+
+
+            console.log("Map length: " + MAP.length);
+            console.log("Num Aware Map length: " + NUM_AWARE_MAP.length);
+            console.log("Square Aware Map length: " + SQUARE_AWARE_MAP.length);
+            const TRIED_COORDS_AWARE_MAP = removeCoordsFromMap(triedCoords, SQUARE_AWARE_MAP); // hold on, i could bunch this into NUM_AWARE_MAP couldnt i?
+            if (TRIED_COORDS_AWARE_MAP.length == 0) {
+                if (coords.length == 0) {
+                    console.log("Dubious break");
+                    break; // why?
+                }
+
+                var spot; // we're trying to place a number here. now figure out where this spot actually is
+                var conflictingCoord; // the number conflicting with spot
+                if (SQUARE_AWARE_MAP.length == 1) { spot = SQUARE_AWARE_MAP[0]; console.log("Spot is square"); }
+                else if (NUM_AWARE_MAP.length == 1) { spot = NUM_AWARE_MAP[0]; console.log("Spot is num"); }
+
+                for (c of coords) {
+                    if (c[0] == spot[0] || c[1] == spot[1]) {
+                        conflictingCoord = c;
+                        console.log("Conflict found at " + c);
+                        break // conflict found
+                    }
+                }
+
+                if (!conflictingCoord) { // dont know how this case ever happens
+                    console.log("Desperate measures used");
+                    conflictingCoord = coords[0]; // A desperate lie to get things moving again
+                }
+
+                console.log("Removing conflicting coord: " + conflictingCoord);
+                coords.splice(conflictingCoord, 1);
+                triedCoords.push(conflictingCoord);
+                continue;
+            }
+
+            const FINAL_MAP = TRIED_COORDS_AWARE_MAP;
+
+
+            // finally, place a coordinate
+            const getRandomItem = (arr) => {
+                  const randomIndex = Math.floor(Math.random() * arr.length);
+                  return arr[randomIndex];
+            };
+            const CHOICE = getRandomItem(FINAL_MAP);
+            //console.log("Choice: " + CHOICE);
+            coords.push(CHOICE);
+            //console.log("Coords after choice added: ");
+            //for(c of coords){console.log(c);}
+            triedCoords.splice(0, triedCoords.length); // empty triedCoords
 
         }
     }
+    console.log("Board generated");
+    return [numbers, cycles]; // returns the unmodified array! blargisborg!
 }
 
-console.log("hello world");
-generateBoard();
+function hideAmountOfNumbersRandomly(board, amount) {
+}
+
+
+function pushNumberToCell(number, cellId) { // we love a simple helper function
+    document.getElementById(cellId).innerHTML = number;
+}
+
+function convertCoordToIdFormat(coord) {
+    console.log(coord[0])
+}
+
+function populateBoardHTML(board) {
+    console.log("Populating HTML board");
+    for (const number in board) {
+        var coords = Object.values(board[number]);
+        console.log("Number: " + number);
+        console.log("Coords: " + coords);
+        for(c of coords){console.log(c);}
+    }
+}
+
+var board = generateBoard();
+console.log("Generated in " + board[1] + " cycles");
+console.log(board);
+populateBoardHTML(board[0]);
