@@ -1,16 +1,15 @@
-// i allegedly haave two errors. i dont know whats wrong though, just that theres errors. thanks, vim!
-
+// somehow, a bunch of stuff got lowercased. and now im playing whack-a-mole. chances are i missed a few
 const ALL_X_COORDS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const ALL_Y_COORDS = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 const SQUARES = [
     [[1, 1], [3, 3]], [[4, 1], [6, 3]], [[7, 1], [9, 3]],
     [[1, 4], [3, 6]], [[4, 4], [6, 6]], [[7, 4], [9, 6]],
-
+    [[1, 7], [3, 9]], [[4, 7], [6, 9]], [[7, 7], [9, 9]]
 ];
 
 function getPossibleCoords(takenCoords, xCoords = ALL_X_COORDS, yCoords = ALL_Y_COORDS) {
-    var possibleXCoords = [...xCoords]; // and i already am realizing i dont know the first thing about javascript
-    var possibleYCoords = [...yCoords];
+    let possibleXCoords = [...xCoords]; 
+    let possibleYCoords = [...yCoords];
     if (takenCoords.length != 0) {
         for (const coords of takenCoords) {
             if (possibleXCoords.includes(coords[0])) {
@@ -24,9 +23,18 @@ function getPossibleCoords(takenCoords, xCoords = ALL_X_COORDS, yCoords = ALL_Y_
     return [possibleXCoords, possibleYCoords];
 }
 
+function findCoordWithSharedAxis(point, coords) {
+    for (const c in coords) {
+        if (c[0] == point[0] || c[1] == point[1]) {
+            return c;
+        }
+    }
+    return null;
+}
+
 function buildCoordsMap(xCoords, yCoords){
     // pair x values with y values
-    var coordsMap = [];
+    let coordsMap = [];
     for (const x of xCoords) {
         for (const y of yCoords) {
             coordsMap.push([x, y]);
@@ -42,8 +50,16 @@ function isInSquare(coords, square) { // simple collider logic
         && coords[1] <= square[1][1];
 }
 
+function findMySquare(coord, squares = squares) {
+    // for each square, if the coord is between its bounds, return that square
+    for (const square of squares) {
+        if (isInSquare(coord, square)) { return square; }
+    }
+    throw new Error("coordinate is not in any square");
+}
+
 function removeCoordsFromSquare(takenCoords, map, squares) {
-    var newMap = [...map];
+    let newMap = [...map];
     if (takenCoords.length == 0) {
         return newMap; // no squares eliminated yet
     }
@@ -57,8 +73,8 @@ function removeCoordsFromSquare(takenCoords, map, squares) {
     return newMap;
 }
 
-function getCoordsOfAllNumbers(numbers) { // numbers is not iterable
-    var allNums = [];
+function getCoordsOfAllNumbers(numbers) { 
+    let allNums = [];
     for (const number in numbers) {
         for (const coord of numbers[number]) {
             allNums.push(coord);
@@ -67,164 +83,156 @@ function getCoordsOfAllNumbers(numbers) { // numbers is not iterable
     return allNums;
 }
 
-function removeCoordsFromMap(coords, map) {
-    return map.filter(coord => !coords.some(c => c[0] === coord[0] && c[1] === coord[1]));
-}
-
-function findCoordWithSharedAxis(point, coords) {
-    for (const c in coords) {
-        if (c[0] == point[0] || c[1] == point[1]) {
-            return c;
-        }
+function removeNumbersFromMap(numbers, map) {
+    let filteredMap = map;
+    for (const number in numbers) {
+        coords = numbers[number];
+        filteredMap = filteredMap.filter(coord => !coords.some(c => c[0] === coord[0] && c[1] === coord[1]));
     }
-    return null;
+
+    return filteredMap;
 }
 
 function generateBoard() {
-    /**
-     * :return map: dictionary of numbers and their coordinates
-     * :return cycles: number of cycles it took to generate the board
-     * Todo: update how this docstring is formatted so that it works with vsc
-     */
-
-    console.log("Begin generating board");
-    var numbers = {"1":[[1,1]], "2":[], "3": [], "4": [], "5": [], "6": [], "7": [], "8": [], "9": []}; // should be blank
-    var cycles = 0;
+    let numbers = {"1":[], "2":[], "3": [], "4": [], "5": [], "6": [], "7": [], "8": [], "9": []}; // should be blank
+    console.log("begin generating board");
+    let cycles = 0;
 
     for (const number in numbers) {
-        console.log("Trying: " + number);
-        var coords = numbers[number];
-        console.log("Coords: ");
-        for(c of coords){console.log(c);}
-        var triedCoords = [];
+        console.log("populating number: " + number);
+        let coords = numbers[number];
+        //for(c of coords){console.log(c);}
+        let triedCoords = [];
         while (coords.length < 9) {
             if (cycles > 200) { // reset to 200
+                console.log("took too long, giving up");
                 return [false, 0]; // reset if it takes too long
             }
             cycles += 1;
-            // loop logic
+            console.log("current cycle: " + cycles);
+
+            // build a map of possible cells for the next number
+            const POSSIBLE_COORDS = getPossibleCoords(coords); // eliminate x/y values if they overlap with a coord
+            const MAP = buildCoordsMap(POSSIBLE_COORDS[0], POSSIBLE_COORDS[1]); // build a coordinate map
+            const NUM_AWARE_MAP = removeNumbersFromMap(numbers, MAP); // remove all taken coords from the map
+            const SQUARE_AWARE_MAP = removeCoordsFromSquare(coords, NUM_AWARE_MAP, SQUARES); // remove all coords in squares that already have the same number
 
 
-            // eliminate x/y values if they overlap with a coord
-            const POSSIBLE_COORDS = getPossibleCoords(coords); 
-            //console.log("Possible coords: ");
-            //for (c of POSSIBLE_COORDS){console.log(c)};
-
-
-            // build a coordinate map
-            const MAP = buildCoordsMap(POSSIBLE_COORDS[0], POSSIBLE_COORDS[1]);
-            //console.log("Map: ");
-            //for (m of MAP){console.log(m);}
-
-            // remove all taken coords from the map
-            const NUM_AWARE_MAP = removeCoordsFromMap(coords, MAP);
-            //console.log("Num aware map: ");
-            //for(m of NUM_AWARE_MAP){console.log(m);}
-
-            // remove all coords in squares that already have the same number
-            const SQUARE_AWARE_MAP = removeCoordsFromSquare(coords, NUM_AWARE_MAP, SQUARES);
-            //console.log("Square aware coords map: ");
-            //for (m of SQUARE_AWARE_COORDS_MAP){console.log(m);}
-
-
-
-
-            // error checking
-            
-
-            /*
-             * This will work better when I know all the possible cases where an issue occurs, and then work on those.
-             */
-
-
-
-            console.log("Map length: " + MAP.length);
-            console.log("Num Aware Map length: " + NUM_AWARE_MAP.length);
-            console.log("Square Aware Map length: " + SQUARE_AWARE_MAP.length);
+            // error checking, aka the insanity zone
             const TRIED_COORDS_AWARE_MAP = removeCoordsFromMap(triedCoords, SQUARE_AWARE_MAP); // hold on, i could bunch this into NUM_AWARE_MAP couldnt i?
             if (TRIED_COORDS_AWARE_MAP.length == 0) {
+                console.log("conflict detected, searching...");
+                console.log("map length: " + MAP.length);
+                console.log("num aware map length: " + NUM_AWARE_MAP.length);
+                console.log("square aware map length: " + SQUARE_AWARE_MAP.length);
                 if (coords.length == 0) {
-                    console.log("Dubious break");
+                    console.log("dubious break");
                     break; // why?
                 }
 
-                var spot; // we're trying to place a number here. now figure out where this spot actually is
-                var conflictingCoord; // the number conflicting with spot
-                if (SQUARE_AWARE_MAP.length == 1) { spot = SQUARE_AWARE_MAP[0]; console.log("Spot is square"); }
-                else { spot = NUM_AWARE_MAP[0]; console.log("Spot is num"); }
+                let spot; // we're trying to place a number here. now figure out where this spot actually is
+                let conflictingCoord; // the number conflicting with spot
+                if (SQUARE_AWARE_MAP.length == 1) { spot = SQUARE_AWARE_MAP[0]; console.log("spot is square"); }
+                else if (NUM_AWARE_MAP.length == 1) { spot = NUM_AWARE_MAP[0]; console.log("spot is num"); }
+                else if (MAP.length == 1) { spot = MAP[0]; console.log("spot is map"); } 
+                else { console.log("spot not set!"); }
+                console.log("spot coords: " + spot);
 
-                for (c of coords) {
-                    if (c[0] == spot[0] || c[1] == spot[1]) {
-                        conflictingCoord = c;
-                        console.log("Conflict found at " + c);
-                        break // conflict found
+                try {
+                    for (c of coords) {
+                        if (c[0] == spot[0] || c[1] == spot[1]) {
+                            conflictingCoord = c;
+                            console.log("conflict found at " + c);
+                            break; // conflict found
+                        }
                     }
+                }
+                catch {
+                    console.log("spot not set prevented finding the conflicting coord");
                 }
 
                 if (!conflictingCoord) { // dont know how this case ever happens
-                    console.log("Desperate measures used");
-                    conflictingCoord = coords[0]; // A desperate lie to get things moving again
+                    console.log("desperate measures used");
+                    conflictingCoord = coords[0]; // a desperate lie to get things moving again
                 }
 
-                console.log("Removing conflicting coord: " + conflictingCoord);
+                console.log("removing conflicting coord: " + conflictingCoord);
                 coords.splice(conflictingCoord, 1);
                 triedCoords.push(conflictingCoord);
                 continue;
             }
 
-            const FINAL_MAP = TRIED_COORDS_AWARE_MAP;
+            const final_map = TRIED_COORDS_AWARE_MAP;
 
 
             // finally, place a coordinate
-            const getRandomItem = (arr) => {
-                  const randomIndex = Math.floor(Math.random() * arr.length);
-                  return arr[randomIndex];
-            };
-            const CHOICE = getRandomItem(FINAL_MAP);
-            //console.log("Choice: " + CHOICE);
-            coords.push(CHOICE);
-            //console.log("Coords after choice added: ");
+            const choice = getRandomItem(final_map);
+            //console.log("choice: " + choice);
+            coords.push(choice);
+            //console.log("coords after choice added: ");
             //for(c of coords){console.log(c);}
-            triedCoords.splice(0, triedCoords.length); // empty triedCoords
+            triedCoords.splice(0, triedCoords.length); // clear triedcoords array
 
         }
     }
 
-    // finally, output the damn information
-    //console.log("Board generated");
-    //console.log("Numbers: " + Object.values(numbers));
     return [numbers, cycles]; // returns the unmodified array! blargisborg!
 }
 
 function hideAmountOfNumbersRandomly(board, amount) {
+    let counter = amount;
+    let newBoard = {...board};
+    while (counter > 0) {
+        for (const number in board) {
+            board[number].splice(getRandomItem(board[number]), 1);
+            counter = counter - 1;
+        }
+    }
+    return newBoard;
 }
+    
+// one line functions
+    function pushNumberToCell(number, cellId) { document.getElementById(cellId).innerHTML = number; }
+    function reportErrors(error) { document.getElementById("errorLine").innerHTML = "Error detected. Please copy this message and keep it somewhere safe: " + error.message; }
+    function errorWrapper(func) { try { func(); } catch (error) { reportErrors(error); } }
+    const removeCoordsFromMap = (coords, map) => map.filter(coord => !coords.some(c => c[0] === coord[0] && c[1] === coord[1]));
+    const convertCoordToIdFormat = (id, coord) => id + ":" + coord[0] + ":" + coord[1];
+    const getRandomItem = arr => arr[Math.floor(Math.random() * arr.length)];
 
-
-function pushNumberToCell(number, cellId) { // we love a simple helper function
-    document.getElementById(cellId).innerHTML = number;
-}
-
-function convertCoordToIdFormat(coord) {
-    return coord[0] + ":" + coord[1];
-}
-
-function populateBoardHTML(board) {
-    console.log("Populating HTML board");
+function populateBoardHTML(board, id="k") {
+    // id is either "k" for answer key or "p" for puzzle.
     for (const number in board) {
-        var coords = board[number];
-        for(c of coords){
-            pushNumberToCell(number, convertCoordToIdFormat(c));
+        let coords = board[number];
+        for(const c of coords){
+            pushNumberToCell(number, convertCoordToIdFormat(id, c));
         }
     }
 }
+
+function clearBoardHTML(id) {
+    const coords = buildCoordsMap(ALL_X_COORDS, ALL_Y_COORDS);
+    for (const c of coords) {
+        pushNumberToCell(" ", convertCoordToIdFormat(id, c));
+    }
+}
+
 function getNewGame() {
-    var attempts = 0;
+    // generate answer key
+    let attempts = 0;
+    let answerKey; 
     while (true) {
         attempts++;
-        var board = generateBoard();
-        if (board[0]) { break; }
+        answerKey = generateBoard();
+        if (answerKey[0] && answerKey) { break; }
     }
-    console.log("Generated in " + board[1] + " cycles and " + attempts + " attempts.");
-    //console.log(board);
-    populateBoardHTML(board[0]);
+    console.log("Generated in " + answerKey[1] + " cycles and " + attempts + " attempts.");
+
+
+
+    let puzzle = hideAmountOfNumbersRandomly(answerKey[0], 40); // this is mutating answerKey[0].
+    clearBoardHTML("k");
+    clearBoardHTML("p");
+    populateBoardHTML(answerKey[0], "k"); // should display a filled in sudoku board
+    populateBoardHTML(puzzle, "p"); // should display a puzzle to be played
 }
+

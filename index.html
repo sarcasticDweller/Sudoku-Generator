@@ -4,26 +4,26 @@
         <title>Sudoku Board Generator</title>
         <style>
             table, th, td {
-                border: 2px solid black;
+                border: 3px solid black;
                 border-collapse: collapse;
             }
             td {
                 width: 36px;
                 height: 36px;
                 text-align: center;
-                border: 1px solid lightgray;
+                border: 1px solid black;
             }
             td:nth-child(3n) {
-                border-right: 2px solid black;
+                border-right: 3px solid black;
             }
             td:nth-child(3n + 1) {
-                border-left: 2px solid black;
+                border-left: 3px solid black;
             }
             tr:nth-child(3n) td {
-                border-bottom: 2px solid black;
+                border-bottom: 3px solid black;
             }
             tr:nth-child(3n + 1) td {
-                border-top: 2px solid black;
+                border-top: 3px solid black;
             }
             tr:last-child td {
                 border-bottom: none;
@@ -34,48 +34,82 @@
             td:last-child {
                 border-right: none;
             }
-        </style> <!-- Good enough for now, but I want better square definitions-->
+	</style> <!-- Full disclosure, an AI wrote this style sheet -->
     </head>
     <body>
         <h1 id="title">Sudoku Board Generator</h1>
+        <p><b>Developer build</b>. Put errorWrapper() over the button before release</p>
+        <button onclick="getNewGame()">Generate Sudoku board and answer key</button>
+        <p id="errorLine"></p>
+	<!--
+		IDS
+		Letter refers to which board they're on
+			- k: Answer Key
+			- p: Puzzle
+		Numbers refer to x:y coordinate pairs
+       	-->
 	<h2>Answer Key</h2>
         <table>
             <tr>
-                <td id="1:1"></td><td id="2:1"></td><td id="3:1"></td><td id="4:1"></td><td id="5:1"></td><td id="6:1"></td><td id="7:1"></td><td id="8:1"></td><td id="9:1"></td>
+                <td id="k:1:1"></td><td id="k:2:1"></td><td id="k:3:1"></td><td id="k:4:1"></td><td id="k:5:1"></td><td id="k:6:1"></td><td id="k:7:1"></td><td id="k:8:1"></td><td id="k:9:1"></td>
             </tr>
             <tr>
-                <td id="1:2"></td><td id="2:2"></td><td id="3:2"></td><td id="4:2"></td><td id="5:2"></td><td id="6:2"></td><td id="7:2"></td><td id="8:2"></td><td id="9:2"></td>
+                <td id="k:1:2"></td><td id="k:2:2"></td><td id="k:3:2"></td><td id="k:4:2"></td><td id="k:5:2"></td><td id="k:6:2"></td><td id="k:7:2"></td><td id="k:8:2"></td><td id="k:9:2"></td>
             </tr>
             <tr>
-                <td id="1:3"></td><td id="2:3"></td><td id="3:3"></td><td id="4:3"></td><td id="5:3"></td><td id="6:3"></td><td id="7:3"></td><td id="8:3"></td><td id="9:3"></td>
+                <td id="k:1:3"></td><td id="k:2:3"></td><td id="k:3:3"></td><td id="k:4:3"></td><td id="k:5:3"></td><td id="k:6:3"></td><td id="k:7:3"></td><td id="k:8:3"></td><td id="k:9:3"></td>
             </tr>
             <tr>
-                <td id="1:4"></td><td id="2:4"></td><td id="3:4"></td><td id="4:4"></td><td id="5:4"></td><td id="6:4"></td><td id="7:4"></td><td id="8:4"></td><td id="9:4"></td>
+                <td id="k:1:4"></td><td id="k:2:4"></td><td id="k:3:4"></td><td id="k:4:4"></td><td id="k:5:4"></td><td id="k:6:4"></td><td id="k:7:4"></td><td id="k:8:4"></td><td id="k:9:4"></td>
             </tr>
             <tr>
-                <td id="1:5"></td><td id="2:5"></td><td id="3:5"></td><td id="4:5"></td><td id="5:5"></td><td id="6:5"></td><td id="7:5"></td><td id="8:5"></td><td id="9:5"></td>
+                <td id="k:1:5"></td><td id="k:2:5"></td><td id="k:3:5"></td><td id="k:4:5"></td><td id="k:5:5"></td><td id="k:6:5"></td><td id="k:7:5"></td><td id="k:8:5"></td><td id="k:9:5"></td>
             </tr>
             <tr>
-                <td id="1:6"></td><td id="2:6"></td><td id="3:6"></td><td id="4:6"></td><td id="5:6"></td><td id="6:6"></td><td id="7:6"></td><td id="8:6"></td><td id="9:6"></td>
+                <td id="k:1:6"></td><td id="k:2:6"></td><td id="k:3:6"></td><td id="k:4:6"></td><td id="k:5:6"></td><td id="k:6:6"></td><td id="k:7:6"></td><td id="k:8:6"></td><td id="k:9:6"></td>
             </tr>
             <tr>
-                <td id="1:7"></td><td id="2:7"></td><td id="3:7"></td><td id="4:7"></td><td id="5:7"></td><td id="6:7"></td><td id="7:7"></td><td id="8:7"></td><td id="9:7"></td>
+                <td id="k:1:7"></td><td id="k:2:7"></td><td id="k:3:7"></td><td id="k:4:7"></td><td id="k:5:7"></td><td id="k:6:7"></td><td id="k:7:7"></td><td id="k:8:7"></td><td id="k:9:7"></td>
             </tr>
             <tr>
-                <td id="1:8"></td><td id="2:8"></td><td id="3:8"></td><td id="4:8"></td><td id="5:8"></td><td id="6:8"></td><td id="7:8"></td><td id="8:8"></td><td id="9:8"></td>
+                <td id="k:1:8"></td><td id="k:2:8"></td><td id="k:3:8"></td><td id="k:4:8"></td><td id="k:5:8"></td><td id="k:6:8"></td><td id="k:7:8"></td><td id="k:8:8"></td><td id="k:9:8"></td>
             </tr>
             <tr>
-                <td id="1:9"></td><td id="2:9"></td><td id="3:9"></td><td id="4:9"></td><td id="5:9"></td><td id="6:9"></td><td id="7:9"></td><td id="8:9"></td><td id="9:9"></td>
+                <td id="k:1:9"></td><td id="k:2:9"></td><td id="k:3:9"></td><td id="k:4:9"></td><td id="k:5:9"></td><td id="k:6:9"></td><td id="k:7:9"></td><td id="k:8:9"></td><td id="k:9:9"></td>
             </tr>
         </table>
-        <script src="index.js"></script>
-        <button onclick="getNewGame()">Generate Sudoku board and answer key</button>
+	<h2>Puzzle</h2>
+        <table>
+            <tr>
+                <td id="p:1:1"></td><td id="p:2:1"></td><td id="p:3:1"></td><td id="p:4:1"></td><td id="p:5:1"></td><td id="p:6:1"></td><td id="p:7:1"></td><td id="p:8:1"></td><td id="p:9:1"></td>
+            </tr>
+            <tr>
+                <td id="p:1:2"></td><td id="p:2:2"></td><td id="p:3:2"></td><td id="p:4:2"></td><td id="p:5:2"></td><td id="p:6:2"></td><td id="p:7:2"></td><td id="p:8:2"></td><td id="p:9:2"></td>
+            </tr>
+            <tr>
+                <td id="p:1:3"></td><td id="p:2:3"></td><td id="p:3:3"></td><td id="p:4:3"></td><td id="p:5:3"></td><td id="p:6:3"></td><td id="p:7:3"></td><td id="p:8:3"></td><td id="p:9:3"></td>
+            </tr>
+            <tr>
+                <td id="p:1:4"></td><td id="p:2:4"></td><td id="p:3:4"></td><td id="p:4:4"></td><td id="p:5:4"></td><td id="p:6:4"></td><td id="p:7:4"></td><td id="p:8:4"></td><td id="p:9:4"></td>
+            </tr>
+            <tr>
+                <td id="p:1:5"></td><td id="p:2:5"></td><td id="p:3:5"></td><td id="p:4:5"></td><td id="p:5:5"></td><td id="p:6:5"></td><td id="p:7:5"></td><td id="p:8:5"></td><td id="p:9:5"></td>
+            </tr>
+            <tr>
+                <td id="p:1:6"></td><td id="p:2:6"></td><td id="p:3:6"></td><td id="p:4:6"></td><td id="p:5:6"></td><td id="p:6:6"></td><td id="p:7:6"></td><td id="p:8:6"></td><td id="p:9:6"></td>
+            </tr>
+            <tr>
+                <td id="p:1:7"></td><td id="p:2:7"></td><td id="p:3:7"></td><td id="p:4:7"></td><td id="p:5:7"></td><td id="p:6:7"></td><td id="p:7:7"></td><td id="p:8:7"></td><td id="p:9:7"></td>
+            </tr>
+            <tr>
+                <td id="p:1:8"></td><td id="p:2:8"></td><td id="p:3:8"></td><td id="p:4:8"></td><td id="p:5:8"></td><td id="p:6:8"></td><td id="p:7:8"></td><td id="p:8:8"></td><td id="p:9:8"></td>
+            </tr>
+            <tr>
+                <td id="p:1:9"></td><td id="p:2:9"></td><td id="p:3:9"></td><td id="p:4:9"></td><td id="p:5:9"></td><td id="p:6:9"></td><td id="p:7:9"></td><td id="p:8:9"></td><td id="p:9:9"></td>
+            </tr>
+        </table>
         <h1>How to use</h1>
-        <p>
-            Select the button above to generate a Sudoku board. It'll be filled in. That's cringe. We should make a not filled in one, but we aren't there yet now are we. 
-        </p>
-        <p>
-            Can you tell I'm just writing this to procrastinate coding?
-        </p>
+        <p>Placeholder text</p>
+        <script src="index.js"></script>
     </body>
 </html>
