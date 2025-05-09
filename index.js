@@ -56,7 +56,7 @@ function findMySquare(coord, squares = squares) {
     throw new Error("coordinate is not in any square");
 }
 
-function removeCoordsFromSquare(takenCoords, map, squares) {
+function removeCoordsFromSquares(takenCoords, map, squares = SQUARES) {
     let newMap = [...map];
     if (takenCoords.length == 0) {
         return newMap; // no squares eliminated yet
@@ -109,18 +109,29 @@ function generateBoardNeo() { // loops infinitely
             attemptsToPlaceNumber++;
             console.log("Current cycle: " + cycles);
 
-            if (attemptsToPlaceNumber > 9) { // regenerate this number
-                coordsOfNumber = [];
+            // early bailouts
+            if (attemptsToPlaceNumber > 18) { // regenerate this number
+                clearArray(coordsOfNumber);
                 attemptsToPlaceNumber = 0;
+            }
+
+            if (cycles > 500) { 
+                console.log("Working number: " + number);
+                console.log(coordsOfNumber);
+                console.log(numbers);
+                throw new Error("Infinite loop detected"); 
             }
 
             const possibleCoords = getPossibleCoords(coordsOfNumber);
 
             const maps = []; // build a final map while preserving history
-            maps.push([buildCoordsMap(possibleCoords[0], possibleCoords[1])]);
-            maps.push([removeNumbersFromMap(numbers, maps.at(-1))]);
-            maps.push([removeCoordsFromSquare(coordsOfNumber, maps.at(-1))]);
-            maps.push([removeCoordsFromMap(triedCoordsOfNumber, maps.at(-1))]);
+            maps.push(buildCoordsMap(possibleCoords[0], possibleCoords[1]));
+            maps.push(removeNumbersFromMap(numbers, maps.at(-1)));
+            maps.push(removeCoordsFromSquares(coordsOfNumber, maps.at(-1)));
+            console.log(triedCoordsOfNumber);
+            console.log(maps.at(-1));
+            if (triedCoordsOfNumber.length != 1)
+                maps.push(removeCoordsFromMap(triedCoordsOfNumber, maps.at(-1)));
             
             // error checking
             if (maps.at(-1).length == 0) {
@@ -139,7 +150,7 @@ function generateBoardNeo() { // loops infinitely
                 }
 
                 let conflictingCoord;
-                if (!troubledSpot) {
+                if (!troubledSpot) { // means we couldnt find the spot that had a conflict
                     console.log("desperate measures used");
                     conflictingCoord = coordsOfNumber[0]; // a desperate lie to get things moving again
                 } else {
@@ -153,14 +164,14 @@ function generateBoardNeo() { // loops infinitely
                 }
 
                 console.log("Removing conflicting coord: " + conflictingCoord);
-                coordsInMap.splice(conflictingCoord, 1);
-                triedCoordsInMap.push(conflictingCoord);
+                coordsOfNumber.splice(conflictingCoord, 1);
+                triedCoordsOfNumber.push(conflictingCoord);
                 continue;
             }
 
             // finally, place a coordinate
-            coords.push(getRandomItem(maps.at(-1)));
-            triedCoordsOfNumber.splice(0, triedCoordsOfNumber.length); // clear triedcoords array
+            coordsOfNumber.push(getRandomItem(maps.at(-1)));
+            clearArray(triedCoordsOfNumber);
         }
     }
 
@@ -194,8 +205,8 @@ function generateBoard() {
 
             // error checking, aka the insanity zone
             const TRIED_COORDS_AWARE_MAP = removeCoordsFromMap(triedCoords, SQUARE_AWARE_MAP); // hold on, i could bunch this into NUM_AWARE_MAP couldnt i?
-            if (TRIED_COORDS_AWARE_MAP.length == 0) {
-                console.log("conflict detected, searching...");
+            if (TRIED_COORDS_AWARE_MAP.length == 0) {   
+                console.log("conflict detected, searching..."); 
                 console.log("map length: " + MAP.length);
                 console.log("num aware map length: " + NUM_AWARE_MAP.length);
                 console.log("square aware map length: " + SQUARE_AWARE_MAP.length);
@@ -276,24 +287,13 @@ const convertCoordToIdFormat = (id, coord) => id + ":" + coord[0] + ":" + coord[
 
 const getRandomItem = arr => arr[Math.floor(Math.random() * arr.length)];
 
-const getLast = array => array[array.length - 1];
+const clearArray = array => { array.splice(0, array.length); }
 
 function getNewGame() {
-    // generate answer key
-    //let attempts = 0;
-    //let answerKey; 
-    //while (true) {
-    //    attempts++;
-    //    answerKey = generateBoard();
-    //    if (answerKey[0] && answerKey) { break; }
-    //}
-    //console.log("Generated in " + answerKey[1] + " cycles and " + attempts + " attempts.");
     let board = generateBoardNeo();
     let answerKey = board[0], cycles = board[1];
     console.log("Generated in " + cycles + " cycles.");
     console.log(answerKey);
-
-
 
     let puzzle = hideAmountOfNumbersRandomly(answerKey, 40); // this is mutating answerKey[0].
     clearBoard("k");

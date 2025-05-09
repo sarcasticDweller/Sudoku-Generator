@@ -3,4 +3,4 @@ ignore/
 ._*
 game.txt
 .DS_Store
-_vimrc
+_vimrc.txt
