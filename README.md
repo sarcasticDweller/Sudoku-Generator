@@ -1,15 +1,4 @@
-# Out of date!
-This is not for the javascript version. 
-
 # About
-Generates a Sudoku board filled in, and one with 40 cells hidden randomly.
+Generates a Sudoku answer key and puzzle. Heavy work in progress.
 
-# How to Run
-Clone the repo, and either run `main.py` directly or run the `runme.sh` to output the game to a text file. Make sure to run `chmod +x runme.sh` before attempting to run the file. 
-
-No, there is not a Windows version.
-
-# Functions to Add
-- Hide cells without making multiple solutions
-- Customizeable difficulty
-- Output to a more traditional format
+Crazy thing, there's [6,670,903,752,021,072,936,960](https://en.wikipedia.org/wiki/Mathematics_of_Sudoku) possible valid Sudoku boards, and somehow, generating one is still quite a difficult project! Completion of this project will require improving my understanding of mathematics and algorithms. I fully intend to create a finished product, but it will take quite some time.
